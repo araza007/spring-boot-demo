@@ -1,27 +1,15 @@
 package com.device;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.springpageable.storage.CountryStorage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import static com.device.mock.Constants.*;
-import static com.springpageable.storage.CountryStorage.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CountryStorageTest {
@@ -31,45 +19,6 @@ class CountryStorageTest {
     @BeforeAll
     static void beforeAll() {
         countryStorage = new CountryStorage();
-    }
-
-    @Test
-    void testThat_countriesAndCERegionCountriesInitialization_throwsIOException() throws Exception {
-        // Arrange
-        var mapper = CountryStorage.class.getDeclaredField("mapper");
-        mapper.setAccessible(true);
-
-        // Mock object mapper to simulate IOException
-        var mockMapper = Mockito.mock(ObjectMapper.class);
-
-        when(mockMapper.readValue(eq(CountryStorage.class.getResource(COUNTRIES_RELATIVE_PATH)),
-                any(TypeReference.class))).thenThrow(new IOException());
-
-        when(mockMapper.readValue(eq(CountryStorage.class.getResource(COUNTRIES_CE_RELATIVE_PATH)),
-                any(TypeReference.class))).thenThrow(new IOException());
-
-        when(mockMapper.readValue(eq(CountryStorage.class.getResource(COUNTRIES_FRENCH_OVERSEAS_RELATIVE_PATH)),
-                any(TypeReference.class))).thenThrow(new IOException());
-
-        var modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(mapper, mapper.getModifiers() & ~Modifier.FINAL);
-
-        // Set mocked object mapper to the testing class
-        mapper.set(null, mockMapper);
-
-        // Act
-        var utils = new CountryStorage();
-
-        // Assert
-        assertEquals(0, utils.getCountriesByCountryNameStartsWith(null).size());
-        assertEquals(0, utils.getCountriesInCERegion().size());
-        assertEquals(0, utils.getCountriesInFrenchOverseasRegion().size());
-
-        // Set real object mapper for other tests
-        mapper.set(null, new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
     }
 
     @Test

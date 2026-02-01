@@ -15,7 +15,7 @@
     <properties>
         <sonar.organization>alvelchev</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <coverage.exclusions>
             **/advice/**,
             **/annotation/**,
@@ -94,11 +94,16 @@
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
+                <dependency>
+                    <groupId>org.mockito</groupId>
+                    <artifactId>mockito-junit-jupiter</artifactId>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.mockito</groupId>
+                    <artifactId>mockito-inline</artifactId>
+                    <scope>test</scope>
+                </dependency>
         <dependency>
             <groupId>ie.corballis</groupId>
             <artifactId>json-fixtures-lib</artifactId>
@@ -148,7 +153,7 @@
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
-                            <version>1.4.2.Final</version>
+                            <version>1.5.3.Final</version>
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
