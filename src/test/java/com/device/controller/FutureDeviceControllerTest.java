@@ -15,9 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -51,12 +54,14 @@ class FutureDeviceControllerTest {
   void setUp() throws Exception {
     FixtureAnnotations.initFixtures(this);
 
+    objectMapper = Jackson2ObjectMapperBuilder.json().build();
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(objectMapper);
+
     mockMvc =
         MockMvcBuilders.standaloneSetup(underTest)
             .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+            .setMessageConverters(converter)
             .build();
-
-    objectMapper = new ObjectMapper();
   }
 
   @Test
@@ -64,7 +69,7 @@ class FutureDeviceControllerTest {
     // Arrange
     var expectedResult = List.of(new GetFutureDeviceResponseDTO());
     when(mockFutureDeviceService.retrieveFutureDevices(any(Pageable.class), anyString()))
-        .thenReturn(new PageImpl<>(expectedResult));
+        .thenReturn(new PageImpl<>(expectedResult, PageRequest.of(0, 20), expectedResult.size()));
 
     // Act
     var mvcResult =
