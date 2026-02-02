@@ -18,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.config.SpringDataJacksonConfiguration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -52,13 +54,17 @@ class CriteriaBuilderExampleControllerTest {
   void setUp() throws Exception {
     FixtureAnnotations.initFixtures(this);
 
+    objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new SpringDataJacksonConfiguration.PageModule());
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+    converter.setObjectMapper(objectMapper);
+
     mockMvc =
         MockMvcBuilders.standaloneSetup(underTest)
             .setControllerAdvice(new GlobalExceptionHandler())
             .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+            .setMessageConverters(converter)
             .build();
-
-    objectMapper = new ObjectMapper();
   }
 
   @Test
