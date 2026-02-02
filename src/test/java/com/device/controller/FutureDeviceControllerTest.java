@@ -15,9 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -47,24 +49,27 @@ class FutureDeviceControllerTest {
 
   @Mock private FutureDeviceService mockFutureDeviceService;
 
-  @BeforeEach
-  void setUp() throws Exception {
-    FixtureAnnotations.initFixtures(this);
+    @BeforeEach
+    void setUp() throws Exception {
+      FixtureAnnotations.initFixtures(this);
 
-    mockMvc =
-        MockMvcBuilders.standaloneSetup(underTest)
-            .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-            .build();
+      objectMapper = new ObjectMapper();
+      MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+      converter.setObjectMapper(objectMapper);
 
-    objectMapper = new ObjectMapper();
-  }
+      mockMvc =
+          MockMvcBuilders.standaloneSetup(underTest)
+              .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+              .setMessageConverters(converter)
+              .build();
+    }
 
   @Test
   void testThat_retrieveFutureDevices_returnsResult() throws Exception {
-    // Arrange
-    var expectedResult = List.of(new GetFutureDeviceResponseDTO());
-    when(mockFutureDeviceService.retrieveFutureDevices(any(Pageable.class), anyString()))
-        .thenReturn(new PageImpl<>(expectedResult));
+        // Arrange
+        var expectedResult = List.of(new GetFutureDeviceResponseDTO());
+        when(mockFutureDeviceService.retrieveFutureDevices(any(Pageable.class), anyString()))
+            .thenReturn(new PageImpl<>(expectedResult, PageRequest.of(0, 20), expectedResult.size()));
 
     // Act
     var mvcResult =

@@ -16,8 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -48,25 +50,28 @@ class CriteriaBuilderExampleControllerTest {
   @Fixture(LIST_OF_GET_USER_RESPONSE_DTO)
   private List<GetUserResponseDTO> getUserResponseDTOs;
 
-  @BeforeEach
-  void setUp() throws Exception {
-    FixtureAnnotations.initFixtures(this);
+    @BeforeEach
+    void setUp() throws Exception {
+      FixtureAnnotations.initFixtures(this);
 
-    mockMvc =
-        MockMvcBuilders.standaloneSetup(underTest)
-            .setControllerAdvice(new GlobalExceptionHandler())
-            .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-            .build();
+      objectMapper = new ObjectMapper();
+      MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+      converter.setObjectMapper(objectMapper);
 
-    objectMapper = new ObjectMapper();
-  }
+      mockMvc =
+          MockMvcBuilders.standaloneSetup(underTest)
+              .setControllerAdvice(new GlobalExceptionHandler())
+              .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+              .setMessageConverters(converter)
+              .build();
+    }
 
   @Test
   void testThat_getUsers_returnsResult() throws Exception {
-    // Arrange
-    when(mockUserService.getUsers(
-            anyList(), or(isNull(), anyList()), anyList(), anyString(), any(Pageable.class)))
-        .thenReturn(new PageImpl<>(getUserResponseDTOs));
+        // Arrange
+        when(mockUserService.getUsers(
+                anyList(), or(isNull(), anyList()), anyList(), anyString(), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(getUserResponseDTOs, PageRequest.of(0, 20), getUserResponseDTOs.size()));
 
     // Act
     var mvcResult =
