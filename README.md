@@ -91,7 +91,7 @@ a wide range of Spring Boot features and implementations.
 # Branches:
 
 - Branch with name: "java11Version" is set up for JDK11
-- Main branch is with the newest spring boot 3.0.2 and JDK17
+- Main branch is with the newest Spring Boot 3.0.2 and JDK17
 
 # Git commit plugin response:
 
